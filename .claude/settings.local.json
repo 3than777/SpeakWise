@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(setup_environment.bat)",
+      "Bash(cmd /c setup_environment.bat)",
+      "Bash(conda --version:*)",
+      "Bash(cmd /c conda --version)",
+      "Bash(python data_preparation.py:*)",
+      "Bash(python:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}
