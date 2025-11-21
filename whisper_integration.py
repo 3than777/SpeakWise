@@ -72,9 +72,25 @@ class WhisperASR:
         Returns:
             Dictionary with transcription results
         """
-        # Transcribe with Whisper
+        # Load audio using soundfile (doesn't require ffmpeg)
+        try:
+            audio_array, sr = sf.read(audio_path)
+            # Convert to mono if stereo
+            if len(audio_array.shape) > 1:
+                audio_array = audio_array.mean(axis=1)
+            # Resample to 16kHz if needed (Whisper expects 16kHz)
+            if sr != 16000:
+                audio_array = librosa.resample(audio_array, orig_sr=sr, target_sr=16000)
+        except Exception as e:
+            # Fallback: try librosa (may work for some formats)
+            try:
+                audio_array, sr = librosa.load(audio_path, sr=16000)
+            except:
+                raise RuntimeError(f"Could not load audio file. Please ensure it's in a supported format (WAV, FLAC, OGG). Error: {e}")
+
+        # Transcribe with Whisper using audio array
         result = self.model.transcribe(
-            audio_path,
+            audio_array,
             language=self.language,
             fp16=(self.device == "cuda"),
             word_timestamps=return_timestamps,
